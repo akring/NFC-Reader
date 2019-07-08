@@ -7,8 +7,11 @@
 //
 
 #import "ViewController.h"
+#import <CoreNFC/CoreNFC.h>
 
-@interface ViewController ()
+@interface ViewController ()<NFCNDEFReaderSessionDelegate>
+
+@property (nonatomic, strong) NFCNDEFReaderSession *session;
 
 @end
 
@@ -16,8 +19,28 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view.
+    
+    _session = [[NFCNDEFReaderSession alloc] initWithDelegate:self
+                                                        queue:nil
+                                     invalidateAfterFirstRead:YES];
 }
 
+- (IBAction)startScan:(id)sender {
+    [_session beginSession];
+}
+
+- (IBAction)stopScan:(id)sender {
+    [_session invalidateSession];
+}
+
+- (void)readerSession:(NFCNDEFReaderSession *)session didDetectNDEFs:(NSArray<NFCNDEFMessage *> *)messages {
+    NFCNDEFMessage *message = messages.firstObject;
+    NFCNDEFPayload *payload = message.records.firstObject;
+    NSLog(@"succeed");
+}
+
+- (void)readerSession:(NFCNDEFReaderSession *)session didInvalidateWithError:(NSError *)error {
+    NSLog(error.localizedDescription);
+}
 
 @end
